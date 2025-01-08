@@ -21,6 +21,17 @@ button {
     cursor: pointer;
 }
 
+main {
+    margin: 20px;
+}
+
+.btn {
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-weight: 600;
+}
+
 .modal-backdrop {
     position: fixed;
     inset: 0;

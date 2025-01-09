@@ -1,48 +1,81 @@
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
-// Keeps track of the currently open modal
-let currentModal = null;
+/**
+ *  <div class="modal-backdrop">
+        <div class="modal-container">
+            <button class="modal-close">&times;</button>
+            <div class="modal-content">
+                .....
+            </div>
+        </div>
+    </div>
+ */
 
-// Opening Modals
-$$('[data-modal]').forEach((btn) => {
-    btn.onclick = function () {
-        const modal = $(this.dataset.modal); // document.querySelector(#modal-1)
+function Modal() {
+    this.openModal = (content) => {
+        // Create modal elements
+        const backDrop = document.createElement('div');
+        backDrop.classList.add('modal-backdrop');
 
-        if (modal) {
-            modal.classList.add('show');
-            currentModal = modal;
-        } else {
-            console.error(`${this.dataset.modal} does not exist!`);
-        }
+        const container = document.createElement('div');
+        container.classList.add('modal-container');
+
+        const closeBtn = document.createElement('button');
+        closeBtn.classList.add('modal-close');
+        closeBtn.innerHTML = '&times;';
+
+        const modalContent = document.createElement('div');
+        modalContent.classList.add('modal-content');
+
+        // Append elements & content
+        modalContent.innerHTML = content;
+        container.append(closeBtn, modalContent);
+        backDrop.append(container);
+        document.body.append(backDrop);
+
+        setTimeout(() => {
+            backDrop.classList.add('show');
+        }, 1000);
+
+        // Register close event for button
+        closeBtn.onclick = () => this.closeModal(backDrop);
+
+        // Register close event for backDrop element
+        backDrop.onclick = (e) => {
+            if (e.target === backDrop) {
+                this.closeModal(backDrop);
+            }
+        };
+
+        // Register close event for esc key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeModal(backDrop);
+            }
+        });
     };
-});
 
-// Closing Modals via Close Button
-$$('.modal-close').forEach((btn) => {
-    btn.onclick = function () {
-        const modal = this.closest('.modal-backdrop');
-        if (modal) {
-            modal.classList.remove('show');
-            currentModal = null;
-        }
+    this.closeModal = (modalElement) => {
+        modalElement.classList.remove('show');
+        modalElement.ontransitionend = () => {
+            modalElement.remove();
+        };
     };
-});
+}
 
-// Closing Modals via Backdrop Click
-$$('.modal-backdrop').forEach((modal) => {
-    modal.onclick = function (e) {
-        if (e.target === this) {
-            this.classList.remove('show');
-            currentModal = null;
-        }
-    };
-});
+const modal = new Modal();
 
-// Closing Modals via Escape Key
-document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && currentModal) {
-        currentModal.classList.remove('show');
-        currentModal = null;
-    }
-});
+// modal.openModal('<h1>Learning JS is fun</h1>');
+
+$('#open-modal-1').onclick = () => {
+    modal.openModal('<h1>Learning JS is fun</h1>');
+};
+
+$('#open-modal-2').onclick = () => {
+    modal.openModal('<h1>Learning JS is HARD</h1>');
+};
+
+$('#open-modal-3').onclick = () => {
+    modal.openModal('<h1>Learning JS is FUTURE</h1>');
+};

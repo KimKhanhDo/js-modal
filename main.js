@@ -13,7 +13,18 @@ const $$ = document.querySelectorAll.bind(document);
  */
 
 function Modal() {
-    this.openModal = (content) => {
+    this.openModal = (objContent = {}) => {
+        const { templateId } = objContent;
+        const template = $(`#${templateId}`);
+
+        if (!template) {
+            console.error(`#${templateId} does not exist`);
+            return;
+        }
+
+        // console.log(template.content);
+        const content = template.content.cloneNode(true);
+
         // Create modal elements
         const backDrop = document.createElement('div');
         backDrop.classList.add('modal-backdrop');
@@ -29,7 +40,7 @@ function Modal() {
         modalContent.classList.add('modal-content');
 
         // Append elements & content
-        modalContent.innerHTML = content;
+        modalContent.append(content);
         container.append(closeBtn, modalContent);
         backDrop.append(container);
         document.body.append(backDrop);
@@ -69,13 +80,13 @@ const modal = new Modal();
 // modal.openModal('<h1>Learning JS is fun</h1>');
 
 $('#open-modal-1').onclick = () => {
-    modal.openModal('<h1>Learning JS is fun</h1>');
+    modal.openModal({
+        templateId: 'modal-1',
+    });
 };
 
 $('#open-modal-2').onclick = () => {
-    modal.openModal('<h1>Learning JS is HARD</h1>');
-};
-
-$('#open-modal-3').onclick = () => {
-    modal.openModal('<h1>Learning JS is FUTURE</h1>');
+    modal.openModal({
+        templateId: 'modal-2',
+    });
 };

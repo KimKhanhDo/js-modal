@@ -85,22 +85,31 @@ function Modal() {
             document.body.style.paddingRight = "";
         };
     };
-}
-function getScrollbarWidth() {
-    const div = document.createElement("div");
-    Object.assign(div.style, {
-        overflow: "scroll",
-        position: "absolute",
-        top: "-9999px",
-    });
 
-    document.body.appendChild(div);
+    function getScrollbarWidth() {
+        // Cache
+        if (getScrollbarWidth.value) {
+            console.log("Return exist value");
+            return getScrollbarWidth.value;
+        }
 
-    const scrollbarWidth = div.offsetWidth - div.clientWidth;
+        const div = document.createElement("div");
+        Object.assign(div.style, {
+            overflow: "scroll",
+            position: "absolute",
+            top: "-9999px",
+        });
 
-    document.body.removeChild(div);
+        document.body.appendChild(div);
+        const scrollbarWidth = div.offsetWidth - div.clientWidth;
+        getScrollbarWidth.value = scrollbarWidth;
 
-    return scrollbarWidth;
+        document.body.removeChild(div);
+
+        console.log(`Calculate scrollbar width ${scrollbarWidth}`);
+
+        return scrollbarWidth;
+    }
 }
 
 const modal = new Modal();

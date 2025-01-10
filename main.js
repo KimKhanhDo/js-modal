@@ -18,6 +18,8 @@ function Modal(options = {}) {
         destroyOnClose = true,
         cssClass = [],
         closeMethods = ["button", "overlay", "escape"],
+        onOpen,
+        onClose,
     } = options;
     const template = $(`#${templateId}`);
 
@@ -97,12 +99,20 @@ function Modal(options = {}) {
         document.body.classList.add("no-scroll");
         document.body.style.paddingRight = getScrollbarWidth() + "px";
 
+        this._backDrop.ontransitionend = (e) => {
+            if (e.propertyName !== "transform") return;
+            if (typeof onOpen === "function") onOpen();
+        };
+
         return this._backDrop;
     };
 
     this.close = (isDestroyed = destroyOnClose) => {
         this._backDrop.classList.remove("show");
-        this._backDrop.ontransitionend = () => {
+        this._backDrop.ontransitionend = (e) => {
+            // Prevent animation execute multi times -> causing bugs
+            if (e.propertyName !== "transform") return;
+
             // destroyOnClose: true -> closeEvent trigger -> "modal-backdrop" element removed out of DOM
             if (isDestroyed && this._backDrop) {
                 this._backDrop.remove();
@@ -112,6 +122,8 @@ function Modal(options = {}) {
             // Enable scrolling
             document.body.classList.remove("no-scroll");
             document.body.style.paddingRight = "";
+
+            if (typeof onClose === "function") onClose();
         };
 
         // equal destroyOnClose: true
@@ -155,18 +167,24 @@ function Modal(options = {}) {
  * class "show" removed BUT "modal-backdrop" element stay
  *
  * 3. modal.destroy();
+ * 4. modal.setFooterContent("Copyright xxx");
+ * 5. modal.addFooterBtn("Cancel", "class-1 class-2", (e) => {});
+ *
  */
 
 const modal1 = new Modal({
     templateId: "modal-1",
     destroyOnClose: false,
+    onOpen: () => {
+        console.log("Modal 1 opened");
+    },
+    onClose: () => {
+        console.log("Modal 1 closed");
+    },
 });
 
 $("#open-modal-1").onclick = () => {
     const modalElement = modal1.open();
-
-    // const img = modalElement.querySelector("img");
-    // console.log(img);
 };
 
 const modal2 = new Modal({
@@ -174,6 +192,12 @@ const modal2 = new Modal({
     // closeMethods: ['button', 'overlay', 'escape'],
     footer: true,
     cssClass: ["class1", "class2", "classN", 12],
+    onOpen: () => {
+        console.log("Modal 2 opened");
+    },
+    onClose: () => {
+        console.log("Modal 2 closed");
+    },
 });
 
 $("#open-modal-2").onclick = () => {

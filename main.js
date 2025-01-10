@@ -13,7 +13,12 @@ const $$ = document.querySelectorAll.bind(document);
  */
 
 function Modal(options = {}) {
-    const { templateId, closeMethods = ["button", "overlay", "escape"] } = options;
+    const {
+        templateId,
+        destroyOnClose = true,
+        cssClass = [],
+        closeMethods = ["button", "overlay", "escape"],
+    } = options;
     const template = $(`#${templateId}`);
 
     if (!template) {
@@ -25,15 +30,22 @@ function Modal(options = {}) {
     this._allowBackdropClose = closeMethods.includes("overlay");
     this._allowEscapeClose = closeMethods.includes("escape");
 
-    this.open = () => {
+    this._build = () => {
         const content = template.content.cloneNode(true);
 
         // Create modal elements
-        const backDrop = document.createElement("div");
-        backDrop.classList.add("modal-backdrop");
+        this._backDrop = document.createElement("div");
+        this._backDrop.classList.add("modal-backdrop");
 
         const container = document.createElement("div");
         container.classList.add("modal-container");
+        if (cssClass.length) {
+            cssClass.forEach((className) => {
+                if (typeof className === "string") {
+                    container.classList.add(className);
+                }
+            });
+        }
 
         // Create close btn & register event when condition is TRUE
         if (this._allowButtonClose) {
@@ -41,7 +53,7 @@ function Modal(options = {}) {
             closeBtn.classList.add("modal-close");
             closeBtn.innerHTML = "&times;";
             container.append(closeBtn);
-            closeBtn.onclick = () => this.close(backDrop);
+            closeBtn.onclick = () => this.close();
         }
 
         const modalContent = document.createElement("div");
@@ -50,18 +62,24 @@ function Modal(options = {}) {
         // Append elements & content
         modalContent.append(content);
         container.append(modalContent);
-        backDrop.append(container);
-        document.body.append(backDrop);
+        this._backDrop.append(container);
+        document.body.append(this._backDrop);
+    };
+
+    this.open = () => {
+        if (!this._backDrop) {
+            this._build();
+        }
 
         setTimeout(() => {
-            backDrop.classList.add("show");
-        }, 1000);
+            this._backDrop.classList.add("show");
+        }, 0);
 
         // Close with backDrop
         if (this._allowBackdropClose) {
-            backDrop.onclick = (e) => {
-                if (e.target === backDrop) {
-                    this.close(backDrop);
+            this._backDrop.onclick = (e) => {
+                if (e.target === this._backDrop) {
+                    this.close();
                 }
             };
         }
@@ -70,7 +88,7 @@ function Modal(options = {}) {
         if (this._allowEscapeClose) {
             document.addEventListener("keydown", (e) => {
                 if (e.key === "Escape") {
-                    this.close(backDrop);
+                    this.close();
                 }
             });
         }
@@ -79,17 +97,26 @@ function Modal(options = {}) {
         document.body.classList.add("no-scroll");
         document.body.style.paddingRight = getScrollbarWidth() + "px";
 
-        return backDrop;
+        return this._backDrop;
     };
 
-    this.close = (modalElement) => {
-        modalElement.classList.remove("show");
-        modalElement.ontransitionend = () => {
-            modalElement.remove();
+    this.close = (isDestroyed = destroyOnClose) => {
+        this._backDrop.classList.remove("show");
+        this._backDrop.ontransitionend = () => {
+            // destroyOnClose: true -> closeEvent trigger -> "modal-backdrop" element removed out of DOM
+            if (isDestroyed && this._backDrop) {
+                this._backDrop.remove();
+                this._backDrop = null;
+            }
 
             // Enable scrolling
             document.body.classList.remove("no-scroll");
             document.body.style.paddingRight = "";
+        };
+
+        // equal destroyOnClose: true
+        this.destroy = () => {
+            this.close(true);
         };
     };
 
@@ -119,8 +146,20 @@ function Modal(options = {}) {
     }
 }
 
+/**
+ * 1. modal.open();
+ *
+ * 2. modal.close(true);
+ * destroyOnClose: true -> closeEvent trigger -> "modal-backdrop" element removed out of DOM
+ * destroyOnClose: false -> closeEvent trigger ->
+ * class "show" removed BUT "modal-backdrop" element stay
+ *
+ * 3. modal.destroy();
+ */
+
 const modal1 = new Modal({
     templateId: "modal-1",
+    destroyOnClose: false,
 });
 
 $("#open-modal-1").onclick = () => {
@@ -134,14 +173,9 @@ const modal2 = new Modal({
     templateId: "modal-2",
     // closeMethods: ['button', 'overlay', 'escape'],
     footer: true,
-    cssClass: ["class1", "class2", "classN"],
-    onOpen: () => {
-        console.log("Modal opened");
-    },
-    onClose: () => {
-        console.log("Modal closed");
-    },
+    cssClass: ["class1", "class2", "classN", 12],
 });
+
 $("#open-modal-2").onclick = () => {
     const modalElement = modal2.open();
 };

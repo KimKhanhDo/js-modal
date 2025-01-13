@@ -10,6 +10,7 @@
         <main>
             <button id="open-modal-1" class="btn">Open Modal 1</button>
             <button id="open-modal-2" class="btn">Open Modal 2</button>
+            <button id="open-modal-3" class="btn">Open Modal 3</button>
             <div>
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestias nesciunt, consequatur totam
                 exercitationem magnam delectus dolorum qui voluptatum ea minima culpa distinctio inventore repudiandae
@@ -56,6 +57,7 @@
         <!-- Modal 1 -->
         <template id="modal-1">
             <h1>Lorem ipsum dolor sit amet.</h1>
+            <button class="btn" onclick="modal2.open()">Open Modal 2</button>
             <p>
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Quam quibusdam eos cumque velit adipisci omnis
                 facilis similique minus animi, impedit optio aperiam aliquam neque. Quasi porro accusamus suscipit. Eum,
@@ -86,6 +88,7 @@
         <!-- Modal 2 -->
         <template id="modal-2">
             <h1>Login</h1>
+            <button class="btn" onclick="modal3.open()">Open Modal 3</button>
             <form action="" id="login-form">
                 <input type="email" placeholder="Enter your email..." id="email" />
                 <br />
@@ -93,6 +96,17 @@
                 <br />
                 <button type="submit">Login</button>
             </form>
+        </template>
+
+        <!-- Modal 3 -->
+        <template id="modal-3">
+            <h2>Lorem ipsum, dolor sit amet consectetur!</h2>
+            <p>
+                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quis beatae fugit dolor esse cumque maxime
+                architecto illo neque culpa dolorum numquam nostrum voluptatum repellat, sit, at magni, facilis cum
+                eaque. Quisquam ducimus sequi nisi illo, nesciunt ipsum itaque vitae! Assumenda provident quia
+                accusantium fugit alias veritatis magnam inventore atque iste?
+            </p>
         </template>
 
         <script src="main.js"></script>
